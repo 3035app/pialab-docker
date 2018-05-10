@@ -2,14 +2,19 @@
 
 set -ex
 
+if [ -z "${SERVERPORT}" ]
+then
+    SERVERPORT=8042
+fi
+
 if [ -z "${FRONTURL}" ]
 then
- FRONTURL='http://localhost:8042/front'
+ FRONTURL="http://localhost:${SERVERPORT}/front"
 fi
 
 if [ -z "${BACKURL}" ]
 then
- BACKURL='http://localhost:8042/back'
+ BACKURL="http://localhost:${SERVERPORT}/back"
 fi
 
 # clean
@@ -44,4 +49,4 @@ docker -D build --network=pia.network --build-arg CACHEBUST=$(shuf -n 1 -i 100-1
        --build-arg DBHOST=${DBHOST} --build-arg ETCDHOST=${ETCDHOST} \
        --build-arg FRONTURL=${FRONTURL} --build-arg BACKURL=${BACKURL} \
        -f Dockerfile -t pia.img .
-docker run -dt --network=pia.network -p 8042:80 --name apache.for.pia.cnt pia.img
+docker run -dt --network=pia.network -p ${SERVERPORT}:80 --name apache.for.pia.cnt pia.img
