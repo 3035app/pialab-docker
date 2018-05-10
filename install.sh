@@ -13,8 +13,7 @@ docker network create pia.network
 
 # install etcd
 REGISTRY=quay.io/coreos/etcd
-docker run -dt -p 2379:2379 -p 2380:2380 \
-       --network=pia.network \
+docker run -dt --network=pia.network \
        --name etcd.for.pia.cnt ${REGISTRY}:v3.1.1 \
        /usr/local/bin/etcd \
        --data-dir=/etcd-data --name node1 \
