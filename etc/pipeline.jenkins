@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    
+    options {
+        timeout(time: 1, unit: 'HOURS')
+        timestamps()
+        disableConcurrentBuilds()
+        ansiColor('xterm')
+    }
+
+    stages {
+    	stage ('Where Am I') {
+            steps {
+                sh "uname -a"
+            }
+        }
+        
+        stage ('Install') {
+            steps {
+                sh './install.sh'
+            }
+        }
+    }
+
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+
+}
