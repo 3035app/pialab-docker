@@ -1,6 +1,11 @@
 pipeline {
     agent any
     
+    environment {
+        FRONTURL="http://ci.libre-informatique.fr:8042/front"
+        BACKURL="http://ci.libre-informatique.fr:8042/back"
+    }
+    
     options {
         timeout(time: 1, unit: 'HOURS')
         timestamps()
