@@ -6,7 +6,7 @@ FROM debian:stable
 
 RUN apt-get update && apt-get install -y apt-transport-https lsb-release ca-certificates net-tools lsof postgresql-client wget \
     && apt-get install -y git curl build-essential unzip \
-    && apt-get install -y dnsutils vim-nox\
+    && apt-get install -y dnsutils vim-nox emacs-nox\
     && apt-get autoremove -y && apt-get clean
 
 #####################
@@ -45,8 +45,15 @@ RUN echo '<?php phpinfo(); ?>' > /var/www/html/phpinfo.php && chmod 755 /var/www
 ##########################
 RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer \
-    && chmod 755 /usr/local/bin/composer \
-    && composer global require "hirak/prestissimo" @stable --prefer-dist
+    && chmod 755 /usr/local/bin/composer
+
+RUN composer global require "symfony/console" "^4.0"
+RUN composer global require "symfony/framework-bundle" "^4.0"
+RUN composer global require "symfony/translation" "^4.0"
+RUN composer global require "symfony/twig-bundle" "^4.0"
+RUN composer global require "stof/doctrine-extensions-bundle" "^1.3"
+RUN composer global require "friendsofsymfony/rest-bundle" "^2.3"
+RUN composer global require "friendsofsymfony/oauth-server-bundle" "^1.6"
 
 ################################
 #### INSTALL NODE & ANGULAR ####
@@ -107,15 +114,18 @@ ARG DBHOST=localhost
 ARG DBROOTUSER=postgres
 ARG DBROOTPASSWORD=postgres24
 
-RUN etcdctl put /default/postgres/hostname ${DBHOST} --endpoints=http://${ETCDHOST}:2379
-RUN etcdctl put /default/postgres/root/username ${DBROOTUSER} --endpoints=http://${ETCDHOST}:2379
-RUN etcdctl put /default/postgres/root/password ${DBROOTPASSWORD} --endpoints=http://${ETCDHOST}:2379
-RUN etcdctl get --prefix /default --endpoints=http://${ETCDHOST}:2379
+RUN etcdctl put /default/postgres/hostname ${DBHOST} --endpoints=http://${ETCDHOST}:2379 \
+    && etcdctl put /default/postgres/root/username ${DBROOTUSER} --endpoints=http://${ETCDHOST}:2379 \
+    && etcdctl put /default/postgres/root/password ${DBROOTPASSWORD} --endpoints=http://${ETCDHOST}:2379 \
+    && etcdctl get --prefix /default --endpoints=http://${ETCDHOST}:2379
 
-#############################
-#### INSTALL PIA BACKEND ####
-#############################
+
+################################
+#### INSTALL PIALAB BACKEND ####
+################################
 ENV RND=dck
+ARG BACKURL='http://localhost:8042/back'
+ARG FRONTURL='http://localhost:8042/front'
 
 RUN git clone https://github.com/pia-lab/pialab-back.git /usr/share/pialab-back \
     && cd /usr/share/pialab-back \
@@ -125,15 +135,37 @@ RUN git clone https://github.com/pia-lab/pialab-back.git /usr/share/pialab-back 
     && bin/ci-scripts/create_database.sh \
     && bin/ci-scripts/create_schema.sh \
     && bin/ci-scripts/create_user.sh \
+    && CLIENTURL=${FRONTURL} bin/ci-scripts/create_client_secret.sh \
     && bin/console assets:install
 
-COPY pialab.back.conf /etc/apache2/conf-enabled/pialab.back.conf
+COPY apache/pialab.back.conf /etc/apache2/conf-enabled/pialab.back.conf
+
+##############################
+#### INSTALL PIALAB FRONT ####
+##############################
+
+RUN . /usr/share/pialab-back/.api.env \
+    && etcdctl put /default/api/client/id ${APICLIENTID} --endpoints=http://${ETCDHOST}:2379 \
+    && etcdctl put /default/api/client/secret ${APICLIENTSECRET} --endpoints=http://${ETCDHOST}:2379 \
+    && etcdctl put /default/api/host/url ${BACKURL} --endpoints=http://${ETCDHOST}:2379 \
+    && etcdctl get --prefix /default --endpoints=http://${ETCDHOST}:2379
+
+RUN git clone https://github.com/pia-lab/pialab.git -b new-backend /usr/share/pialab \
+    && cd /usr/share/pialab \
+    &&  confd -onetime -backend etcdv3 -node http://${ETCDHOST}:2379 -confdir ./etc/confd -log-level debug -prefix /default \
+    && . ${NVM_DIR}/nvm.sh \
+    && npm install --no-interaction \
+    && ng build 
+
+COPY apache/pialab.front.conf /etc/apache2/conf-enabled/pialab.front.conf
+
 
 ##############################
 #### START APACHE AS ROOT ####
 ##############################
 #RUN chown -R www-data:www-data /var/www/html/
 #USER root
+RUN apache2ctl configtest
 EXPOSE 80
 CMD /usr/sbin/service apache2 restart && tail -f /var/log/apache2/error.log
 

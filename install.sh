@@ -2,10 +2,20 @@
 
 set -ex
 
+if [ -z "${FRONTURL}" ]
+then
+ FRONTURL='http://localhost:8042/front'
+fi
+
+if [ -z "${BACKURL}" ]
+then
+ BACKURL='http://localhost:8042/back'
+fi
+
 # clean
-docker rm -f etcd.for.pia.cnt || echo "Ok"
-docker rm -f postgresql.for.pia.cnt || echo "Ok"
-docker rm -f apache.for.pia.cnt || echo "Ok"
+docker rm -v -f etcd.for.pia.cnt || echo "Ok"
+docker rm -v -f postgresql.for.pia.cnt || echo "Ok"
+docker rm -v -f apache.for.pia.cnt || echo "Ok"
 docker network rm pia.network || echo "Ok"
 
 # create network
@@ -30,5 +40,8 @@ DBHOST=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{e
 
 # install pia
 docker rm -f apache.for.pia.cnt|| echo "Ok"
-docker -D build --network=pia.network --build-arg CACHEBUST=$(shuf -n 1 -i 100-1000) --build-arg DBHOST=${DBHOST} --build-arg ETCDHOST=${ETCDHOST} -f Dockerfile -t pia.img .
+docker -D build --network=pia.network --build-arg CACHEBUST=$(shuf -n 1 -i 100-1000) \
+       --build-arg DBHOST=${DBHOST} --build-arg ETCDHOST=${ETCDHOST} \
+       --build-arg FRONTURL=${FRONTURL} --build-arg BACKURL=${BACKURL} \
+       -f Dockerfile -t pia.img .
 docker run -dt --network=pia.network -p 8042:80 --name apache.for.pia.cnt pia.img
