@@ -9,12 +9,12 @@ fi
 
 if [ -z "${FRONTURL}" ]
 then
- FRONTURL="http://localhost:${SERVERPORT}/front"
+    FRONTURL="http://localhost:${SERVERPORT}/front"
 fi
 
 if [ -z "${BACKURL}" ]
 then
- BACKURL="http://localhost:${SERVERPORT}/back"
+    BACKURL="http://localhost:${SERVERPORT}/back"
 fi
 
 # clean
