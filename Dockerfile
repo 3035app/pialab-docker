@@ -129,7 +129,7 @@ ARG FRONTURL='http://localhost:8042/front'
 
 RUN git clone https://github.com/pia-lab/pialab-back.git /usr/share/pialab-back \
     && cd /usr/share/pialab-back \
-    && bin/ci-scripts/set_env_with_etcd.sh \
+    && Suffix=docker bin/ci-scripts/set_env_with_etcd.sh \
     && bin/ci-scripts/set_pgpass.sh \
     && composer install --no-interaction --no-scripts \    
     && bin/ci-scripts/create_database.sh \
