@@ -151,7 +151,7 @@ RUN . /usr/share/pialab-back/.api.env \
     && etcdctl put /default/api/host/url ${BACKURL} --endpoints=http://${ETCDHOST}:2379 \
     && etcdctl get --prefix /default --endpoints=http://${ETCDHOST}:2379
 
-RUN git clone https://github.com/pia-lab/pialab.git -b new-backend /usr/share/pialab \
+RUN git clone https://github.com/pia-lab/pialab.git /usr/share/pialab \
     && cd /usr/share/pialab \
     &&  confd -onetime -backend etcdv3 -node http://${ETCDHOST}:2379 -confdir ./etc/confd -log-level debug -prefix /default \
     && . ${NVM_DIR}/nvm.sh \
