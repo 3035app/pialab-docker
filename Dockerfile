@@ -124,6 +124,7 @@ RUN etcdctl put /default/postgres/hostname ${DBHOST} --endpoints=http://${ETCDHO
 #### INSTALL PIALAB BACKEND ####
 ################################
 ENV RND=dck
+ARG CREATEUSER=true
 ARG BACKURL='http://localhost:8042/back'
 ARG FRONTURL='http://localhost:8042/front'
 
@@ -134,7 +135,7 @@ RUN git clone https://github.com/pia-lab/pialab-back.git /usr/share/pialab-back 
     && composer install --no-interaction --no-scripts \    
     && bin/ci-scripts/create_database.sh \
     && bin/ci-scripts/create_schema.sh \
-    && bin/ci-scripts/create_user.sh \
+    && if [ "$CREATEUSER" = "true" ]; then bin/ci-scripts/create_user.sh; fi \
     && CLIENTURL=${FRONTURL} bin/ci-scripts/create_client_secret.sh \
     && bin/console assets:install
 
