@@ -9,6 +9,11 @@ then
     NAME=pialab
 fi
 
+if [ -z "${BRANCH}" ]
+then
+   BRANCH=master
+fi
+
 mkdir -p $(pwd)/var
 
 if [ -z "${ETCDDATA}" ]
@@ -82,6 +87,7 @@ docker -D build --network=${NAME}.network --build-arg CACHEBUST=$(shuf -n 1 -i 1
        --build-arg DBHOST=${DBHOST} --build-arg ETCDHOST=${ETCDHOST} \
        --build-arg FRONTURL=${FRONTURL} --build-arg BACKURL=${BACKURL} \
        --build-arg CREATEUSER=${CREATEUSER} \
+       --build-arg BRANCH=${BRANCH} --build-arg NAME=${NAME} \
        -f Dockerfile -t ${NAME}.img .
 docker run -dt --network=${NAME}.network -p ${SERVERPORT}:80 --name apache.${NAME}.cnt ${NAME}.img
 

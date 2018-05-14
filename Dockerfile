@@ -121,16 +121,27 @@ RUN etcdctl put /default/postgres/hostname ${DBHOST} --endpoints=http://${ETCDHO
 
 
 ################################
-#### INSTALL PIALAB BACKEND ####
+#### INSTALL VARIABLE ####
 ################################
-ENV RND=dck
+ARG NAME=dck
+ENV RND=${NAME}
+ARG BRANCH=master
+ARG BACKBRANCH=${BRANCH}
+ARG FRONTBRANCH=${BRANCH}
+ARG BUILDENV=dev
+ARG BACKBUILDENV=${BUILDENV}
+ARG FRONTBUILDENV=${BUILDENV}
 ARG CREATEUSER=true
 ARG BACKURL='http://localhost:8042/back'
 ARG FRONTURL='http://localhost:8042/front'
 
-RUN git clone https://github.com/pia-lab/pialab-back.git /usr/share/pialab-back \
+################################
+#### INSTALL PIALAB BACKEND ####
+################################
+
+RUN git clone https://github.com/pia-lab/pialab-back.git -b ${BACKBRANCH} /usr/share/pialab-back \
     && cd /usr/share/pialab-back \
-    && Suffix=docker bin/ci-scripts/set_env_with_etcd.sh \
+    && Suffix=${NAME} bin/ci-scripts/set_env_with_etcd.sh \
     && bin/ci-scripts/set_pgpass.sh \
     && composer install --no-interaction --no-scripts \    
     && bin/ci-scripts/create_database.sh \
@@ -151,7 +162,7 @@ RUN . /usr/share/pialab-back/.api.env \
     && etcdctl put /default/api/host/url ${BACKURL} --endpoints=http://${ETCDHOST}:2379 \
     && etcdctl get --prefix /default --endpoints=http://${ETCDHOST}:2379
 
-RUN git clone https://github.com/pia-lab/pialab.git /usr/share/pialab \
+RUN git clone https://github.com/pia-lab/pialab.git -b ${FRONTBRANCH} /usr/share/pialab \
     && cd /usr/share/pialab \
     &&  confd -onetime -backend etcdv3 -node http://${ETCDHOST}:2379 -confdir ./etc/confd -log-level debug -prefix /default \
     && . ${NVM_DIR}/nvm.sh \
