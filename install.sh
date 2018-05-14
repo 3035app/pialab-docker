@@ -14,6 +14,11 @@ then
    BRANCH=master
 fi
 
+if [ -z "${BUILDENV}" ]
+then 
+    BUILDENV="dev"
+fi
+
 mkdir -p $(pwd)/var
 
 if [ -z "${ETCDDATA}" ]
@@ -88,6 +93,7 @@ docker -D build --network=${NAME}.network --build-arg CACHEBUST=$(shuf -n 1 -i 1
        --build-arg FRONTURL=${FRONTURL} --build-arg BACKURL=${BACKURL} \
        --build-arg CREATEUSER=${CREATEUSER} \
        --build-arg BRANCH=${BRANCH} --build-arg NAME=${NAME} \
+       --build-arg BUILDENV=${BUILDENV} \
        -f Dockerfile -t ${NAME}.img .
 docker run -dt --network=${NAME}.network -p ${SERVERPORT}:80 --name apache.${NAME}.cnt ${NAME}.img
 

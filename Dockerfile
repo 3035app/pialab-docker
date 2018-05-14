@@ -47,14 +47,6 @@ RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer \
     && chmod 755 /usr/local/bin/composer
 
-RUN composer global require "symfony/console" "^4.0"
-RUN composer global require "symfony/framework-bundle" "^4.0"
-RUN composer global require "symfony/translation" "^4.0"
-RUN composer global require "symfony/twig-bundle" "^4.0"
-RUN composer global require "stof/doctrine-extensions-bundle" "^1.3"
-RUN composer global require "friendsofsymfony/rest-bundle" "^2.3"
-RUN composer global require "friendsofsymfony/oauth-server-bundle" "^1.6"
-
 ################################
 #### INSTALL NODE & ANGULAR ####
 ################################
@@ -92,12 +84,17 @@ ARG ETCDHOST=localhost
 #####################
 
 #ENV HOME=/home/pia
-#ENV USER=pia
+#ENV USER=pialab
 #ENV GROUP=users
 #RUN useradd -d ${HOME} -g ${GROUP} -m $USER -s /bin/bash \
 #    && usermod -a -G www-data ${USER} 
-  
-#USER $USER:$GROUP
+
+RUN mkdir -p /usr/share/pialab-back  /usr/share/pialab \
+    && chown -R www-data:www-data /usr/share/pialab-back  /usr/share/pialab \
+    && chown -R www-data:www-data ~www-data
+    
+USER www-data:www-data
+
 #WORKDIR ${HOME}
 
 ENV PATH=/usr/sbin:/usr/bin:/bin:/usr/local/sbin:/usr/local/bin
@@ -119,7 +116,6 @@ RUN etcdctl put /default/postgres/hostname ${DBHOST} --endpoints=http://${ETCDHO
     && etcdctl put /default/postgres/root/password ${DBROOTPASSWORD} --endpoints=http://${ETCDHOST}:2379 \
     && etcdctl get --prefix /default --endpoints=http://${ETCDHOST}:2379
 
-
 ################################
 #### INSTALL VARIABLE ####
 ################################
@@ -129,8 +125,6 @@ ARG BRANCH=master
 ARG BACKBRANCH=${BRANCH}
 ARG FRONTBRANCH=${BRANCH}
 ARG BUILDENV=dev
-ARG BACKBUILDENV=${BUILDENV}
-ARG FRONTBUILDENV=${BUILDENV}
 ARG CREATEUSER=true
 ARG BACKURL='http://localhost:8042/back'
 ARG FRONTURL='http://localhost:8042/front'
@@ -141,14 +135,14 @@ ARG FRONTURL='http://localhost:8042/front'
 
 RUN git clone https://github.com/pia-lab/pialab-back.git -b ${BACKBRANCH} /usr/share/pialab-back \
     && cd /usr/share/pialab-back \
-    && Suffix=${NAME} bin/ci-scripts/set_env_with_etcd.sh \
-    && bin/ci-scripts/set_pgpass.sh \
-    && composer install --no-interaction --no-scripts \    
-    && bin/ci-scripts/create_database.sh \
-    && bin/ci-scripts/create_schema.sh \
-    && if [ "$CREATEUSER" = "true" ]; then bin/ci-scripts/create_user.sh; fi \
-    && CLIENTURL=${FRONTURL} bin/ci-scripts/create_client_secret.sh \
-    && bin/console assets:install
+    && BUILDENV=${BUILDENV} Suffix=${NAME} ./bin/ci-scripts/set_env_with_etcd.sh \
+    && ./bin/ci-scripts/set_pgpass.sh \
+    && ./bin/ci-scripts/install.sh \    
+    && ./bin/ci-scripts/create_database.sh \
+    && ./bin/ci-scripts/create_schema.sh \
+    && if [ "$CREATEUSER" = "true" ]; then ./bin/ci-scripts/create_user.sh; fi \
+    && CLIENTURL=${FRONTURL} ./bin/ci-scripts/create_client_secret.sh \
+    && ./bin/ci-scripts/post_install.sh
 
 COPY apache/pialab.back.conf /etc/apache2/conf-enabled/pialab.back.conf
 
@@ -164,10 +158,10 @@ RUN . /usr/share/pialab-back/.api.env \
 
 RUN git clone https://github.com/pia-lab/pialab.git -b ${FRONTBRANCH} /usr/share/pialab \
     && cd /usr/share/pialab \
-    &&  confd -onetime -backend etcdv3 -node http://${ETCDHOST}:2379 -confdir ./etc/confd -log-level debug -prefix /default \
+    && confd -onetime -backend etcdv3 -node http://${ETCDHOST}:2379 -confdir ./etc/confd -log-level debug -prefix /default \
     && . ${NVM_DIR}/nvm.sh \
-    && npm install --no-interaction \
-    && ng build 
+    && ./bin/ci-scripts/install.sh \
+    && BUILDENV=${BUILDENV} ./bin/ci-scripts/build.sh 
 
 COPY apache/pialab.front.conf /etc/apache2/conf-enabled/pialab.front.conf
 
@@ -175,8 +169,10 @@ COPY apache/pialab.front.conf /etc/apache2/conf-enabled/pialab.front.conf
 ##############################
 #### START APACHE AS ROOT ####
 ##############################
-#RUN chown -R www-data:www-data /var/www/html/
-#USER root
+#RUN chown -R www-data:www-data /var/www/html
+#RUN chown -R www-data:www-data /usr/share/pialab-back
+#RUN chown -R www-data:www-data /usr/share/pialab
+USER root
 RUN apache2ctl configtest
 EXPOSE 80
 CMD /usr/sbin/service apache2 restart && tail -f /var/log/apache2/error.log
