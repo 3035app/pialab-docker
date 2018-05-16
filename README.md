@@ -31,7 +31,7 @@ Create a new user (or not)
 
 Open firefox and go to http://localhost:8042/front
 
-Login with the new created user (or with lici@pialab.io account)
+Login with the new created user (lici@pialab.io account will not work on the front part as it is an admin of the back)
 
 Start using Pialab (or not)
 
