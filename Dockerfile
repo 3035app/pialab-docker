@@ -47,16 +47,6 @@ RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer \
     && chmod 755 /usr/local/bin/composer
 
-################################
-#### INSTALL NODE & ANGULAR ####
-################################
-ENV NVM_DIR="/usr/share/nvm"
-RUN curl -so- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash \
-    && [ -s "${NVM_DIR}/nvm.sh" ] \
-    && . "${NVM_DIR}/nvm.sh" \
-    && nvm install 8.11.1 \
-    && npm install -g @angular/cli
-
 #######################
 #### INSTALL CONFD ####
 #######################
@@ -87,17 +77,47 @@ ARG ETCDHOST=localhost
 #ENV USER=pialab
 #ENV GROUP=users
 #RUN useradd -d ${HOME} -g ${GROUP} -m $USER -s /bin/bash \
-#    && usermod -a -G www-data ${USER} 
+#    && usermod -a -G www-data ${USER}
+
+ENV HOME=/var/www
 
 RUN mkdir -p /usr/share/pialab-back  /usr/share/pialab \
     && chown -R www-data:www-data /usr/share/pialab-back  /usr/share/pialab \
-    && chown -R www-data:www-data ~www-data
-    
+    && chown -R www-data:www-data ${HOME}
+
 USER www-data:www-data
 
-#WORKDIR ${HOME}
+WORKDIR ${HOME}
 
 ENV PATH=/usr/sbin:/usr/bin:/bin:/usr/local/sbin:/usr/local/bin
+
+
+################################
+#### INSTALL NODE & ANGULAR ####
+################################
+# "/usr/share/nvm"
+
+ENV NVM_DIR="${HOME}/.nvm"
+RUN curl -so- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash \
+    && [ -s "${NVM_DIR}/nvm.sh" ] \
+    && . "${NVM_DIR}/nvm.sh" \
+    && nvm install 8.11.1 \
+    && npm install -g @angular/cli
+
+
+
+###################################################################
+#### PRECACHE COMPOSER PACKAGE BEFORE DOCKER CACHE is DISABLED ####
+###################################################################
+
+RUN nd=$(mktemp -d) \
+    && cd $nd \
+    && git clone https://github.com/pia-lab/pialab-back.git \
+    && cd pialab-back \
+    && composer install --no-interaction --no-scripts --prefer-dist \
+    && cd /tmp \
+    && rm -rf $nd
+
 
 #####################################################################################
 #### DISABLE DOCKER CACHE AFTER THIS AS WE WANT NEXT STEP TO BE RUN ON ALL BUILD ####
@@ -137,7 +157,7 @@ RUN git clone https://github.com/pia-lab/pialab-back.git -b ${BACKBRANCH} /usr/s
     && cd /usr/share/pialab-back \
     && BUILDENV=${BUILDENV} Suffix=${NAME} ./bin/ci-scripts/set_env_with_etcd.sh \
     && ./bin/ci-scripts/set_pgpass.sh \
-    && ./bin/ci-scripts/install.sh \    
+    && ./bin/ci-scripts/install.sh \
     && ./bin/ci-scripts/create_database.sh \
     && ./bin/ci-scripts/create_schema.sh \
     && if [ "$CREATEUSER" = "true" ]; then ./bin/ci-scripts/create_user.sh; fi \
@@ -161,7 +181,7 @@ RUN git clone https://github.com/pia-lab/pialab.git -b ${FRONTBRANCH} /usr/share
     && confd -onetime -backend etcdv3 -node http://${ETCDHOST}:2379 -confdir ./etc/confd -log-level debug -prefix /default \
     && . ${NVM_DIR}/nvm.sh \
     && ./bin/ci-scripts/install.sh \
-    && BUILDENV=${BUILDENV} ./bin/ci-scripts/build.sh 
+    && BUILDENV=${BUILDENV} ./bin/ci-scripts/build.sh
 
 COPY apache/pialab.front.conf /etc/apache2/conf-enabled/pialab.front.conf
 
@@ -176,4 +196,3 @@ USER root
 RUN apache2ctl configtest
 EXPOSE 80
 CMD /usr/sbin/service apache2 restart && tail -f /var/log/apache2/error.log
-
