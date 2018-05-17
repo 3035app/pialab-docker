@@ -118,6 +118,11 @@ You should login with the super admin lici@pialab.io created in previous step "C
 
 ## Pialab-Front Installation
 
+
+You should read the complete documentation about pialab-back https://github.com/pia-lab/pialab/
+
+Here is a quick start guide.
+
 ### Install Node and Angular
 
 
