@@ -10,13 +10,12 @@ You may want to read it as an example implentation of this document.
 
 ## Prerequis
 
-Before start the installation. You should have installed and configured the following element
+Before start the installation. You should have installed and configured the following element:
 
 - A Linux Apache Server with PHP 7.1
 - A PostgresSQL server with a database and a user dedicated to Pialab (PostgresSQL 9.6 Recomended)
 - Composer installed : https://getcomposer.org/
 - Nvm installed: https://github.com/creationix/nvm
-
 
 ## Pialab-Back Installation
 
@@ -52,7 +51,6 @@ DBPASSWORD=< database user name (ex: 1234)>
 
 You should check and update other variable too...
 
-
 ### Install dependancy
 
 ```bash
@@ -62,7 +60,6 @@ It will download all the symfony dependency of the pialab-back project
 
 ### Create Database Schema
 
-
 ```bash
 ./bin/ci-scripts/create_schema.sh
 ```
@@ -70,16 +67,13 @@ It will create and/or update the PostgresSql schema
 
 ### Create User
 
-
 ```bash
  ./bin/ci-scripts/create_user.sh
 ```
 It will create a super admin named lici@pialab.io with pia42 as password.
-With this admin your will be able to create any user in the GUI after the installation
 You may want to edit the script to change the default password ...
 
 ### Create Application Secret
-
 
 ```bash
 export CLIENTURL="http://localhost:4200"
@@ -91,8 +85,8 @@ Next, run:
 ```bash
 cat .api.env
 ```
-And get the value of the two variable : APICLIENTID & APICLIENTSECRET
-They will be used in the pialab-front configuration
+And get the value of the two variable : APICLIENTID & APICLIENTSECRET.
+They will be used in the pialab-front configuration.
 
 ### Post Install
 
@@ -103,11 +97,11 @@ It will copy asset (image and css) in the good directory
 
 ### Configure apache
 
-You may configure a virtual host on your apache server to use pialab-back/public as DocumentRoot
+You may configure a virtual host on your apache server to use pialab-back/public as DocumentRoot.
 
 Or copy https://github.com/pia-lab/pialab-docker/blob/master/apache/pialab.back.conf as /etc/apache2/conf-enabled/pialab.back.conf
 
-And of restart your apache server after configuration update
+And of course restart your apache server after configuration update.
 
 ### Go to admin Panel
 
@@ -116,8 +110,9 @@ Example: http://localhost/back
 
 You should login with the super admin lici@pialab.io created in previous step "Create User" and add a new user for your Pialab-front app.
 
-## Pialab-Front Installation
 
+
+## Pialab-Front Installation
 
 You should read the complete documentation about pialab-back https://github.com/pia-lab/pialab/
 
@@ -134,7 +129,6 @@ npm install -g @angular/cli
 ```
 NVM_DIR should be set to location where nvm is installed
 
-
 ### Clone the github repository
 
 
@@ -146,7 +140,7 @@ It should be cloned in a directory accesible by your Apache Server
 
 ### Edit environment file
 
-Edit the api part of the file : src/environments/environment.ts
+With your favorite text editor, update the api part of this file : src/environments/environment.ts
 
 ```javascript
  api: {
@@ -175,22 +169,22 @@ It will install node module needed by the Pialab-front app. You must have NVM_DI
 ./bin/ci-scripts/build.sh
 ```
 
-It will create the distribuable archive of the app. You must have NVM_DIR set before running this script.
+It will create the distribuable archive of the angular app. You must have NVM_DIR set before running this script.
 
 ### Configure apache
 
-You may configure a virtual host on your apache server to use pialab/dist as DocumentRoot
+You may configure a virtual host on your apache server to use pialab/dist as DocumentRoot.
 
 Or copy https://github.com/pia-lab/pialab-docker/blob/master/apache/pialab.front.conf as /etc/apache2/conf-enabled/pialab.front.conf
 
-And of restart your apache server after configuration update
+And of course restart your apache server after configuration update.
 
 ### Go to Pialab
 
 Open firefox and go to your Pialab-back url.
 Example: http://localhost/front
 
-You should login with the user created in the Pialab-back GUI
+You should login with the user created in the Pialab-back GUI.
 
 ## Please report any bug to :
 
