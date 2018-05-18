@@ -12,7 +12,7 @@ You may want to read it as an example implentation of this document.
 
 Before start the installation. You should have installed and configured the following element:
 
-- A Linux Apache Server with PHP 7.1
+- A Linux Apache Server with PHP 7.1 or 7.2
 - A PostgresSQL server with a database and a user dedicated to Pialab (PostgresSQL 9.6 Recomended)
 - Composer installed : https://getcomposer.org/
 - Nvm installed: https://github.com/creationix/nvm
