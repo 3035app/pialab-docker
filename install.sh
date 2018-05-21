@@ -15,20 +15,20 @@ then
 fi
 
 if [ -z "${BUILDENV}" ]
-then 
+then
     BUILDENV="dev"
 fi
 
 mkdir -p $(pwd)/var
 
-if [ -z "${ETCDDATA}" ]
+if [ -n "${ETCDDATA}" ]
 then
-    ETCDDATA="$(pwd)/var/${NAME}-etcd-data"
+    ETCDARG="--volume ${ETCDDATA}:/etcd-data"
 fi
 
-if [ -z "${POSTGRESDATA}" ]
+if [ -n "${POSTGRESDATA}" ]
 then
-    POSTGRESDATA="$(pwd)/var/${NAME}-postgres-data"
+    POSTGRESARG="--volume ${POSTGRESDATA}:/var/lib/postgresql/data"
 fi
 
 if [ -z "${SERVERPORT}" ]
@@ -63,7 +63,7 @@ docker network create ${NAME}.network
 # install etcd
 REGISTRY=quay.io/coreos/etcd
 docker run -dt --network=${NAME}.network \
-       --volume ${ETCDDATA}:/etcd-data \
+       $ETCDARG \
        --name etcd.${NAME}.cnt ${REGISTRY}:v3.1.1 \
        /usr/local/bin/etcd \
        --data-dir=/etcd-data --name node1 \
@@ -78,9 +78,9 @@ ETCDHOST=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{
 DBROOTUSER=postgres
 DBROOTPASSWORD=postgres24
 docker run -dt --network=${NAME}.network \
-       --volume ${POSTGRESDATA}:/var/lib/postgresql/data \
+       $POSTGRESARG \
        -e POSTGRES_PASSWORD=${DBROOTPASSWORD} \
-       --name postgresql.${NAME}.cnt postgres:9.6 
+       --name postgresql.${NAME}.cnt postgres:9.6
 
 DBHOST=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' postgresql.${NAME}.cnt)
 
@@ -96,4 +96,3 @@ docker -D build --network=${NAME}.network --build-arg CACHEBUST=$(shuf -n 1 -i 1
        --build-arg BUILDENV=${BUILDENV} \
        -f Dockerfile -t ${NAME}.img .
 docker run -dt --network=${NAME}.network -p ${SERVERPORT}:80 --name apache.${NAME}.cnt ${NAME}.img
-

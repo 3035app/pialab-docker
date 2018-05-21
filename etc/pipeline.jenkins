@@ -22,7 +22,7 @@ pipeline {
 
         stage ('Install') {
             steps {
-                sh "ETCDDATA=/tmp/var/etcd-data-$BUILD_NUMBER POSTGRESDATA=/tmp/var/postgres-data-$BUILD_NUMBER ./install.sh"
+                sh "./install.sh"
             }
         }
     }
