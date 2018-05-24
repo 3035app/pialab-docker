@@ -4,7 +4,7 @@
 
 This is for demo and dev only, please do not use it on production server !
 
-## Prerequis
+## Requirements
 
 Have docker installed and well configured on you favorite linux distribution
 
