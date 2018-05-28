@@ -131,10 +131,12 @@ ARG CACHEBUST=1
 ARG DBHOST=localhost
 ARG DBROOTUSER=postgres
 ARG DBROOTPASSWORD=postgres24
+ARG SELENIUMHOST=selenium.not.needed.here
 
 RUN etcdctl put /default/postgres/hostname ${DBHOST} --endpoints=http://${ETCDHOST}:2379 \
     && etcdctl put /default/postgres/root/username ${DBROOTUSER} --endpoints=http://${ETCDHOST}:2379 \
     && etcdctl put /default/postgres/root/password ${DBROOTPASSWORD} --endpoints=http://${ETCDHOST}:2379 \
+    && etcdctl put /default/selenium/hostname ${SELENIUMHOST} --endpoints=http://${ETCDHOST}:2379 \
     && etcdctl get --prefix /default --endpoints=http://${ETCDHOST}:2379
 
 ################################
