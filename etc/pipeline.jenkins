@@ -30,8 +30,8 @@ pipeline {
     }
 
     environment {
-        FRONTURL="${param.FrontUrl}"
-        BACKURL="${param.BackUrl}"
+        FRONTURL="${params.FrontUrl}"
+        BACKURL="${params.BackUrl}"
     }
 
     options {
