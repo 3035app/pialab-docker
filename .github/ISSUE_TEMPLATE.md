@@ -1,3 +1,9 @@
+# Please report application bug to :
+
+# https://github.com/pia-lab/pialab and/or https://github.com/pia-lab/pialab-back
+
+# only installation with docker bug can be reported here !
+
 ### Summary
 
 When reporting issues, please try to be as descriptive as possible, and include
