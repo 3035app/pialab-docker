@@ -22,8 +22,8 @@ pipeline {
         string(defaultValue: 'pialab_user', description: '', name: 'DatabaseUser')
         string(defaultValue: 'pialab_password', description: '', name: 'DatabasePassword')
 
-        string(defaultValue: '', description: '', name: 'FrontGitBranch')
-        string(defaultValue: '', description: '', name: 'BackGitBranch')
+        string(defaultValue: 'master', description: '', name: 'FrontGitBranch')
+        string(defaultValue: 'master', description: '', name: 'BackGitBranch')
 
 
 
