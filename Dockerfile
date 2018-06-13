@@ -158,7 +158,7 @@ ARG FRONTURL='http://localhost:8042/front'
 
 RUN git clone https://github.com/pia-lab/pialab-back.git -b ${BACKBRANCH} /usr/share/pialab-back \
     && cd /usr/share/pialab-back \
-    && BUILDENV=${BUILDENV} Suffix=${NAME} ./bin/ci-scripts/set_env_with_etcd.sh \
+    && BUILDENV=${BUILDENV} Suffix=${NAME} CLIENTURL=${FRONTURL} ./bin/ci-scripts/set_env_with_etcd.sh \
     && ./bin/ci-scripts/set_pgpass.sh \
     && ./bin/ci-scripts/install.sh \
     && ./bin/ci-scripts/create_database.sh \
