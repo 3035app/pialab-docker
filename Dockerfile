@@ -181,7 +181,7 @@ RUN . /usr/share/pialab-back/.api.env \
 
 RUN git clone https://github.com/pia-lab/pialab.git -b ${FRONTBRANCH} /usr/share/pialab \
     && cd /usr/share/pialab \
-    && confd -onetime -backend etcdv3 -node http://${ETCDHOST}:2379 -confdir ./etc/confd -log-level debug -prefix /default \
+    && ./bin/ci-scripts/set_env_with_etcd.sh \
     && . ${NVM_DIR}/nvm.sh \
     && ./bin/ci-scripts/install.sh \
     && BUILDENV=${BUILDENV} ./bin/ci-scripts/build.sh
