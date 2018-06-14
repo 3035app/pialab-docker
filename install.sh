@@ -11,7 +11,7 @@ fi
 
 if [ -z "${BRANCH}" ]
 then
-   BRANCH=master
+   BRANCH=1.0.1
 fi
 
 if [ -z "${BUILDENV}" ]
