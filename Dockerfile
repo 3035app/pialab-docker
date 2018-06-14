@@ -173,15 +173,10 @@ COPY apache/pialab.back.conf /etc/apache2/conf-enabled/pialab.back.conf
 #### INSTALL PIALAB FRONT ####
 ##############################
 
-RUN . /usr/share/pialab-back/.api.env \
-    && etcdctl put /default/api/client/id ${APICLIENTID} --endpoints=http://${ETCDHOST}:2379 \
-    && etcdctl put /default/api/client/secret ${APICLIENTSECRET} --endpoints=http://${ETCDHOST}:2379 \
-    && etcdctl put /default/api/host/url ${BACKURL} --endpoints=http://${ETCDHOST}:2379 \
-    && etcdctl get --prefix /default --endpoints=http://${ETCDHOST}:2379
-
 RUN git clone https://github.com/pia-lab/pialab.git -b ${FRONTBRANCH} /usr/share/pialab \
     && cd /usr/share/pialab \
-    && ./bin/ci-scripts/set_env_with_etcd.sh \
+    && . /usr/share/pialab-back/.env \
+    && APICLIENTID=${CLIENT_ID} APICLIENTSECRET=${CLIENT_SECRET} ./bin/ci-scripts/set_env_with_etcd.sh \
     && . ${NVM_DIR}/nvm.sh \
     && ./bin/ci-scripts/install.sh \
     && BUILDENV=${BUILDENV} ./bin/ci-scripts/build.sh
