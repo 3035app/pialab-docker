@@ -160,8 +160,10 @@ RUN git clone https://github.com/pia-lab/pialab-back.git -b ${BACKBRANCH} /usr/s
     && cd /usr/share/pialab-back \
     && BUILDENV=${BUILDENV} Suffix=${NAME} CLIENTURL=${FRONTURL} ./bin/ci-scripts/set_env_with_etcd.sh \
     && ./bin/ci-scripts/set_pgpass.sh \
+    && . /usr/share/pialab-back/.env \
     && ./bin/ci-scripts/install.sh \
     && ./bin/ci-scripts/create_database.sh \
+    && psql -w -h ${DBHOST} -c "ALTER USER ${DBUSER} WITH PASSWORD '${DBPASSWORD}';" -U ${DBROOTUSER} \
     && ./bin/ci-scripts/create_schema.sh \
     && if [ "$CREATEUSER" = "true" ]; then ./bin/ci-scripts/create_user.sh; fi \
     && CLIENTURL=${FRONTURL} ./bin/ci-scripts/create_client_secret.sh \
