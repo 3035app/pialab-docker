@@ -1,5 +1,8 @@
 # Change Log
 
+## [1.1.0](https://github.com/pia-lab/pialab-docker/tree/1.1.0) (2018-06-20)
+[Full Changelog](https://github.com/pia-lab/pialab-docker/compare/1.0.1...1.1.0)
+
 ## [1.0.1](https://github.com/pia-lab/pialab-docker/tree/1.0.1) (2018-06-14)
 [Full Changelog](https://github.com/pia-lab/pialab-docker/compare/0.4.5...1.0.1)
 
