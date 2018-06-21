@@ -167,6 +167,7 @@ RUN git clone https://github.com/pia-lab/pialab-back.git -b ${BACKBRANCH} /usr/s
     && ./bin/ci-scripts/create_schema.sh \
     && if [ "$CREATEUSER" = "true" ]; then ./bin/ci-scripts/create_user.sh; fi \
     && CLIENTURL=${FRONTURL} ./bin/ci-scripts/create_client_secret.sh \
+    && ./bin/ci-scripts/update_users_app.sh \
     && ./bin/ci-scripts/post_install.sh
 
 COPY apache/pialab.back.conf /etc/apache2/conf-enabled/pialab.back.conf
