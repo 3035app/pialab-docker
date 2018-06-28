@@ -165,8 +165,8 @@ RUN git clone https://github.com/pia-lab/pialab-back.git -b ${BACKBRANCH} /usr/s
     && ./bin/ci-scripts/create_database.sh \
     && psql -w -h ${DBHOST} -c "ALTER USER ${DBUSER} WITH PASSWORD '${DBPASSWORD}';" -U ${DBROOTUSER} \
     && ./bin/ci-scripts/create_schema.sh \
-    && if [ "$CREATEUSER" = "true" ]; then ./bin/ci-scripts/create_user.sh; fi \
     && CLIENTURL=${FRONTURL} ./bin/ci-scripts/create_client_secret.sh \
+    && if [ "$CREATEUSER" = "true" ]; then ./bin/ci-scripts/create_user.sh; fi \
     && ./bin/ci-scripts/update_users_app.sh \
     && ./bin/ci-scripts/post_install.sh
 
