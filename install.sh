@@ -19,7 +19,16 @@ then
     BUILDENV="dev"
 fi
 
-mkdir -p $(pwd)/var
+if [ -d "$(pwd)/var" ]; then
+  tar -cvzf "$(date '+%Y-%m-%d').var-backup.tgz"
+fi
+
+if [ -n "${RESET}" ]
+then
+    rm -rf $(pwd)/var
+fi
+
+ mkdir -p $(pwd)/var
 
 if [ -n "${ETCDDATA}" ]
 then
