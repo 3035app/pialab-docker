@@ -19,8 +19,8 @@ then
     BUILDENV="dev"
 fi
 
-if [ -d "$(pwd)/var" ]; then
-  tar -cvzf "$(pwd)/$(date '+%Y-%m-%d').var-backup.tgz" "$(pwd)/var"
+if [ -d "$(pwd)/../var" ]; then
+  tar -cvzf "$(pwd)/../$(date '+%Y-%m-%d').var-backup.tgz" "$(pwd)/../var"
 fi
 
 if [ -n "${RESET}" ]
