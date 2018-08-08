@@ -20,7 +20,7 @@ then
 fi
 
 if [ -d "$(pwd)/var" ]; then
-  tar -cvzf "$(date '+%Y-%m-%d').var-backup.tgz" "$(pwd)/var"
+  tar -cvzf "$(pwd)/$(date '+%Y-%m-%d').var-backup.tgz" "$(pwd)/var"
 fi
 
 if [ -n "${RESET}" ]
