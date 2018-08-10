@@ -158,7 +158,7 @@ ARG FRONTURL='http://localhost:8042/front'
 
 RUN git clone https://github.com/pia-lab/pialab-back.git -b ${BACKBRANCH} /usr/share/pialab-back \
     && cd /usr/share/pialab-back \
-    && [ -n "$(tail -c1 file)" ] && print '\n' >> etc/confd/templates/env.tmpl \
+    && [ -n "$(tail -c1 etc/confd/templates/env.tmpl)" ] && print '\n' >> etc/confd/templates/env.tmpl \
     && echo "MAILER_SENDER=no-reply@pialab.io" >> etc/confd/templates/env.tmpl \
     && BUILDENV=${BUILDENV} Suffix=${NAME} CLIENTURL=${FRONTURL} ./bin/ci-scripts/set_env_with_etcd.sh \
     && ./bin/ci-scripts/set_pgpass.sh \
