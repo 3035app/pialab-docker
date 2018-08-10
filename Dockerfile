@@ -156,13 +156,15 @@ ARG FRONTURL='http://localhost:8042/front'
 #### INSTALL PIALAB BACKEND ####
 ################################
 
-RUN git clone https://github.com/pia-lab/pialab-back.git -b ${BACKBRANCH} /usr/share/pialab-back \
-    && cd /usr/share/pialab-back \
+RUN git clone https://github.com/pia-lab/pialab-back.git -b ${BACKBRANCH} /usr/share/pialab-back
+
+RUN cd /usr/share/pialab-back
     && [ -n "$(tail -c1 etc/confd/templates/env.tmpl)" ] && print '\n' >> etc/confd/templates/env.tmpl \
     && echo "MAILER_SENDER=no-reply@pialab.io" >> etc/confd/templates/env.tmpl \
     && BUILDENV=${BUILDENV} Suffix=${NAME} CLIENTURL=${FRONTURL} ./bin/ci-scripts/set_env_with_etcd.sh \
-    && ./bin/ci-scripts/set_pgpass.sh \
-    && . /usr/share/pialab-back/.env \
+    && ./bin/ci-scripts/set_pgpass.sh
+    
+RUN . /usr/share/pialab-back/.env \
     && ./bin/ci-scripts/install.sh \
     && ./bin/ci-scripts/create_database.sh \
     && psql -w -h ${DBHOST} -c "ALTER USER ${DBUSER} WITH PASSWORD '${DBPASSWORD}';" -U ${DBROOTUSER} \
