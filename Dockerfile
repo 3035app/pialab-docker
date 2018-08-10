@@ -165,7 +165,7 @@ RUN cd /usr/share/pialab-back \
     && ./bin/ci-scripts/set_pgpass.sh
     
 RUN cd /usr/share/pialab-back \
-    && rm ./composer.lock
+    && rm ./composer.lock \
     && . /usr/share/pialab-back/.env \
     && ./bin/ci-scripts/install.sh \
     && ./bin/ci-scripts/create_database.sh \
