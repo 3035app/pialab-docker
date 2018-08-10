@@ -164,7 +164,8 @@ RUN cd /usr/share/pialab-back \
     && BUILDENV=${BUILDENV} Suffix=${NAME} CLIENTURL=${FRONTURL} ./bin/ci-scripts/set_env_with_etcd.sh \
     && ./bin/ci-scripts/set_pgpass.sh
     
-RUN . /usr/share/pialab-back/.env \
+RUN cd /usr/share/pialab-back \
+    . /usr/share/pialab-back/.env \
     && ./bin/ci-scripts/install.sh \
     && ./bin/ci-scripts/create_database.sh \
     && psql -w -h ${DBHOST} -c "ALTER USER ${DBUSER} WITH PASSWORD '${DBPASSWORD}';" -U ${DBROOTUSER} \
