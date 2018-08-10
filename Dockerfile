@@ -165,7 +165,7 @@ RUN cd /usr/share/pialab-back \
     && ./bin/ci-scripts/set_pgpass.sh
     
 RUN cd /usr/share/pialab-back \
-    && . .env \
+    && . /usr/share/pialab-back/.env \
     && ./bin/ci-scripts/install.sh \
     && ./bin/ci-scripts/create_database.sh \
     && psql -w -h ${DBHOST} -c "ALTER USER ${DBUSER} WITH PASSWORD '${DBPASSWORD}';" -U ${DBROOTUSER} \
